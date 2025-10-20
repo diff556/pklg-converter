@@ -53,7 +53,7 @@ def upload_and_convert():
         pcapng_path = os.path.join(UPLOAD_FOLDER, pcapng_filename)
         
         try:
-            subprocess.run(['/usr/bin/tshark', '-r', pklg_path, '-w', pcapng_path, '-F', 'pcapng'], check=True, timeout=30)
+            subprocess.run(['tshark', '-r', pklg_path, '-w', pcapng_path, '-F', 'pcapng'], check=True, timeout=30)
         except Exception as e:
             return f"Conversion failed. Please ensure you uploaded a valid .pklg file. Error: {e}", 500
         finally:
