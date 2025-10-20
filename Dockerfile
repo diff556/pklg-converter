@@ -5,10 +5,11 @@ FROM debian:bullseye-slim
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Update the package lists and install the specific packages we need.
-# We are now explicitly asking for 'tshark'.
+# This combination ensures tshark AND all its necessary plugins are installed.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     tshark \
+    wireshark-common \
     python3 \
     python3-pip && \
     # Clean up the apt cache to keep the image smaller
