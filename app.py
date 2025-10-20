@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 UPLOAD_FOLDER = '/tmp/uploads' # Use /tmp folder which is standard for temp files
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# The os.makedirs line was here. We have moved it.
 
 # HTML for the upload page, with a cleaner look
 HTML_TEMPLATE = """
@@ -43,6 +43,10 @@ def upload_and_convert():
         file = request.files.get('file')
         if not file or file.filename == '': return "No file selected", 400
         
+        # --- THIS IS THE NEW, SAFER LOCATION FOR MAKEDIRS ---
+        # It now runs only when a file is uploaded, not at startup.
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
         pklg_filename = secure_filename(file.filename)
         pklg_path = os.path.join(UPLOAD_FOLDER, pklg_filename)
         file.save(pklg_path)
@@ -51,14 +55,12 @@ def upload_and_convert():
         pcapng_path = os.path.join(UPLOAD_FOLDER, pcapng_filename)
         
         try:
-            # Use tshark to convert the file
             subprocess.run(['tshark', '-r', pklg_path, '-w', pcapng_path, '-F', 'pcapng'], check=True, timeout=30)
         except Exception as e:
             return f"Conversion failed. Please ensure you uploaded a valid .pklg file. Error: {e}", 500
         finally:
             if os.path.exists(pklg_path): os.remove(pklg_path)
 
-        # Send the new file for download and then delete it
         @app.after_request
         def cleanup(response):
             if os.path.exists(pcapng_path): os.remove(pcapng_path)
