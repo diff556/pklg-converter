@@ -5,9 +5,8 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 UPLOAD_FOLDER = '/tmp/uploads' # Use /tmp folder which is standard for temp files
-# The os.makedirs line was here. We have moved it.
 
-# HTML for the upload page, with a cleaner look
+# HTML for the upload page
 HTML_TEMPLATE = """
 <!doctype html>
 <html lang="en">
@@ -43,8 +42,7 @@ def upload_and_convert():
         file = request.files.get('file')
         if not file or file.filename == '': return "No file selected", 400
         
-        # --- THIS IS THE NEW, SAFER LOCATION FOR MAKEDIRS ---
-        # It now runs only when a file is uploaded, not at startup.
+        # This is the critical change: Create the directory only when needed.
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
         pklg_filename = secure_filename(file.filename)

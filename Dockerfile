@@ -1,7 +1,7 @@
 # Start from an official Python image
 FROM python:3.9-slim
 
-# This line prevents apt-get from asking interactive questions
+# This line prevents apt-get from asking interactive questions during build
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install tshark and its dependencies
@@ -17,9 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
-# Expose the port the app runs on
+# Tell Render that the service will be listening on this port
 EXPOSE 10000
 
-# Command to run the web server
-# We use the full path to be 100% sure it's found
+# Command to run the web server, using the full path to be 100% certain
 CMD ["/usr/local/bin/gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
