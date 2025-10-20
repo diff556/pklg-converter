@@ -4,8 +4,8 @@ FROM python:3.9-slim
 # This line prevents apt-get from asking interactive questions during build
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
-RUN apt-get update && apt-get install -y tshark
+# Install the FULL wireshark suite to ensure all dissectors are present
+RUN apt-get update && apt-get install -y wireshark
 
 # Set up the working directory
 WORKDIR /app
@@ -17,15 +17,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
-# --- NEW SECTION: Run as a non-root user for better security and compatibility ---
-# Create a new user named "appuser"
+# Run as a non-root user for better security and compatibility
 RUN useradd --create-home appuser
-# Switch all subsequent commands to run as "appuser"
 USER appuser
-# ---------------------------------------------------------------------------------
 
 # Tell Render that the service will be listening on this port
 EXPOSE 10000
 
-# Command to run the web server, now run by "appuser"
+# Command to run the web server
 CMD ["/usr/local/bin/gunicorn", "--workers", "1", "--bind", "0.0.0.0:10000", "app:app"]
